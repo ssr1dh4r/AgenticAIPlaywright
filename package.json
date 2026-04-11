@@ -1,0 +1,20 @@
+{
+  "name": "playwrightaie2e",
+  "version": "1.0.0",
+  "description": "QA Automation Workflow with Agentic AI using Playwright",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:debug": "playwright test --debug",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui"
+  },
+  "keywords": ["playwright", "testing", "automation", "qa", "agentic-ai"],
+  "author": "QA Team",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.5.2"
+  }
+}
