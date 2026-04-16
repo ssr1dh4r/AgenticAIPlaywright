@@ -1,0 +1,38 @@
+{
+	"servers": {
+		"playwright": {
+			"command": "npx",
+			"args": [
+				"@playwright/mcp@latest"
+			],
+			"type": "stdio"
+		},
+		"playwright-test": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"playwright",
+				"run-test-mcp-server"
+			]
+		},
+		"github": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/",
+			"headers": {
+				"Authorization": "Bearer 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"
+			}
+		},
+		"atlassian-mcp": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"mcp-remote@latest",
+				"https://mcp.atlassian.com/v1/mcp",
+				"4000"
+			]
+		}
+		},
+
+	"inputs": []
+}
