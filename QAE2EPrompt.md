@@ -3,7 +3,7 @@
 Set your reasoning mode to 'Strict Procedural'. I need to execute a bulk QA loop.
 STEP 1 [Discovery]: Search the atlassian-rovo server for all tickets in project 'QE AI Kanban' with status 'To Do'. Store the list of all Ticket IDs in your memory. 
 STEP 2 [Logging]: Output the list of IDs you found so I can see the scope. 
-STEP 3 [Execution Loop]: For EVERY ID in that list, perform the following steps Step A to Step J before moving to the next ID:
+STEP 3 [Execution Loop]: For EVERY ID in that list, perform the following steps Step A to Step G before moving to the next ID:
 ## ✅ Step A: Read Jira ticket
 
 Prompt:
@@ -30,7 +30,9 @@ Read the Acceptance Criteria.
 ## ✅ Step B: Create a branch from main
 
 Prompt:
-Pull the latest from remote main branch and then create and checkout a new local branch - naming convention - <Jira ticket ref>_test_AIAutomation.
+Pull the latest from origin main and create a new branch with naming convention <Jira ref>_AI_automation
+Check out the branch before moving to the next step
+
 
 ## ✅ Step C: Create Test Plan
 
@@ -52,7 +54,7 @@ Create a **comprehensive test plan** including:
 * Navigation flows
 * Feature file with ACs under specs/
 
-Save the test plan for individual Jira ticket in .md for each Jira ticket with Jira ticket ref as the prefix in the file name at specs/
+Save the test plan and .feature file for individual Jira ticket with Jira ticket ref as the folder name and file name with Jira ref prefix under specs/
 
 
 Each test scenario must include:
@@ -95,7 +97,7 @@ Use **Playwright MCP (browser tools)**
 
 ---
 
-## ✅ Step E: Generate Automation Scripts
+## ✅ Step F: Generate Automation Scripts
 
 Prompt:
 
@@ -155,7 +157,7 @@ After generating the scripts, run them to see if they pass
 
 ---
 
-## ✅ Step F: Execute and Heal Tests
+## ✅ Step G: Execute and Heal Tests
 
 Prompt:
 
@@ -178,13 +180,12 @@ Re-run tests after healing
 
 
 ---
-
-## ✅ Step G: Consolidate files and folders
+## ✅ Step H: Consolidate files and folders
 
 Prompt:
 Put all the files created in specs/ in newly created folder using the Jira ticket ref. 
 
-## ✅ Step H: Generate Test Report
+## ✅ Step I: Generate Test Report
 
 Prompt:
 
@@ -205,7 +206,7 @@ Include:
 * Recommendations
 ---
 
-## ✅ Step I: Commit to GitHub
+## ✅ Step J: Commit to GitHub
 Prompt:
 Use **GitHub MCP Server**
 Repository URL:
@@ -217,18 +218,22 @@ Perform:
 * Add all files
 * Commit with message:
   ```
-  Complete <Jira ref> automation workflow with agentic AI
+  <Jira ref> QA automation workflow with agentic AI
   ```
-* Push the branch
+* Pull the latest from origin main
+* Merge the changes from main 
+* Push the branch (created in Step B) without any merge conflicts. If there are merge conflicts then ask the QA Engineer to look into them manually and move on to the next step (Step K)
+Files to commit:
+Everything except reports folder
 
-## ✅ Step J: Update Jira ticket status
+## ✅ Step K: Update Jira ticket status
 
 Prompt:
 If there are no open defects or if all tests have passed then move the Jira ticket to "Done" else leave the ticket "in Progress" and details regarding the failure in the comments section.
 
-Create a comprehensive combined test report with pie chart, graphs and tables and saved it under reports/
-
 STEP 4 [Finality]: Do not stop or ask for permission between tickets. Continue until the list from Step 1 is empty.
+
+Create a comprehensive combined test report with pie chart, graphs and tables and saved it under reports/
 
 ## 🚀 Final Instruction
 
