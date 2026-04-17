@@ -19,7 +19,7 @@
 			"type": "http",
 			"url": "https://api.githubcopilot.com/mcp/",
 			"headers": {
-				"Authorization": "Bearer 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"
+				"Authorization": "Bearer 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"
 			}
 		},
 		"atlassian-mcp": {
