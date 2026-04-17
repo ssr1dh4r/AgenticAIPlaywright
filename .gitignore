@@ -6,6 +6,9 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 /reports/
+.vscode/mcp.json
+.playwright-mcp/*.log
+.playwright-mcp/*.yml
 # Dependencies
 package-lock.json
 yarn.lock

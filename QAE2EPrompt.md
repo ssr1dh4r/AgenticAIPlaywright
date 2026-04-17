@@ -215,7 +215,9 @@ https://github.com/ssr1dh4r/AgenticAIPlaywright.git
 ```
 Perform:
 * Initialize repository (if needed)
-* Add all files
+* Delete the files created under .playwright-mcp
+* Unstage mcp.json if it is staged
+* Add all files except mcp.json
 * Commit with message:
   ```
   <Jira ref> QA automation workflow with agentic AI
@@ -223,6 +225,7 @@ Perform:
 * Pull the latest from origin main
 * Merge the changes from main 
 * Push the branch (created in Step B) without any merge conflicts. If there are merge conflicts then ask the QA Engineer to look into them manually and move on to the next step (Step K)
+* Create a Pull Request once the branch iss successfully pushed to the repo
 Files to commit:
 Everything except reports folder
 
