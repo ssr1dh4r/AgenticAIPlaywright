@@ -215,12 +215,14 @@ https://github.com/ssr1dh4r/AgenticAIPlaywright.git
 ```
 Perform:
 * Initialize repository (if needed)
-* Add all files except reports which is under reports folder
+* Add all files
 * Commit with message:
   ```
-  Complete QA automation workflow with agentic AI
+  <Jira ref> QA automation workflow with agentic AI
   ```
-* Push the branch (created in Step B)
+* Pull the latest from origin main
+* Merge the changes from main 
+* Push the branch (created in Step B) without any merge conflicts. If there are merge conflicts then ask the QA Engineer to look into them manually and move on to the next step (Step K)
 Files to commit:
 Everything except reports folder
 
