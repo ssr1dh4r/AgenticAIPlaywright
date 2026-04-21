@@ -48,16 +48,30 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      // Exclude API tests — they run under the dedicated 'api' project
+      testIgnore: ['**/KAN-3/**'],
     },
 
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      // Exclude API tests — they run under the dedicated 'api' project
+      testIgnore: ['**/KAN-3/**'],
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      // Exclude API tests — they run under the dedicated 'api' project
+      testIgnore: ['**/KAN-3/**'],
+    },
+
+    // Dedicated project for KAN-3 API tests (Chromium only + retries for free-hosted API)
+    {
+      name: 'api',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: ['**/KAN-3/**/*.spec.ts'],
+      retries: 2,
     },
 
     /* Test against mobile viewports. */
