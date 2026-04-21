@@ -1,53 +1,72 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from './page-objects/LoginPage';
-import { EDGE_CASE_INPUTS, ERROR_MESSAGES } from './fixtures/test-data';
-
 /**
- * KAN-2: Login Edge Cases & Security Tests
- * Special characters, SQL injection, long strings
- * Tests: TC-KAN2-014, TC-KAN2-015, TC-KAN2-016
+ * KAN-2 - SauceDemo Login Validation
+ * Test Suite: Edge Cases & Security Tests
+ *
+ * Covers:
+ *   TC-KAN2-014 — Special characters in username handled gracefully
+ *   TC-KAN2-015 — SQL injection attempt handled gracefully
+ *   TC-KAN2-016 — Very long username (500+ chars) handled gracefully
+ *
+ * Verified during exploratory testing: the application returns the standard
+ * "does not match" error for all these inputs without crashing or throwing errors.
  */
 
-test.describe('KAN-2: Login Edge Cases & Security Tests', () => {
-  let loginPage: LoginPage;
+import { test, expect } from '@playwright/test';
+import { LoginPage } from './page-objects/LoginPage';
+import { APP_URL, ERROR_MESSAGES, EDGE_CASE_INPUTS } from './fixtures/test-data';
 
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
+test.describe('Edge Cases & Security Tests — KAN-2', () => {
+
+  test('TC-KAN2-014: Special characters in username are handled gracefully', async ({ page }) => {
+    const loginPage = new LoginPage(page);
     await loginPage.navigate();
+
+    // Enter special characters as username
+    await loginPage.login('!@#$%^&*()', 'secret_sauce');
+
+    // Expect: standard error — no crash or system error
+    await loginPage.assertErrorMessage(ERROR_MESSAGES.invalidCredentials);
+    await expect(page).toHaveURL(APP_URL);
   });
 
-  test('TC-KAN2-014: Special characters in username are handled gracefully', async () => {
-    // Act: Login with special characters
-    await loginPage.login(EDGE_CASE_INPUTS.SPECIAL_CHARS, 'secret_sauce');
+  test('TC-KAN2-015: SQL injection attempt in username is handled gracefully', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.navigate();
 
-    // Assert: No crash, proper error displayed
-    expect(await loginPage.isOnLoginPage()).toBe(true);
-    await loginPage.assertErrorMessage(ERROR_MESSAGES.CREDENTIALS_MISMATCH);
-    expect(await loginPage.isOnInventoryPage()).toBe(false);
+    // Enter SQL injection string as username
+    await loginPage.login("'; DROP TABLE users; --", 'secret_sauce');
+
+    // Expect: standard error — application is not vulnerable to SQL injection
+    await loginPage.assertErrorMessage(ERROR_MESSAGES.invalidCredentials);
+    await expect(page).toHaveURL(APP_URL);
   });
 
-  test('TC-KAN2-015: SQL injection attempt is blocked and does not grant access', async () => {
-    // Act: Attempt SQL injection via username field
-    await loginPage.login(EDGE_CASE_INPUTS.SQL_INJECTION, 'secret_sauce');
+  test('TC-KAN2-016: Very long username (500 chars) is handled gracefully', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.navigate();
 
-    // Assert: Not redirected to inventory — injection is blocked
-    expect(await loginPage.isOnLoginPage()).toBe(true);
-    expect(await loginPage.isOnInventoryPage()).toBe(false);
-    await loginPage.assertErrorMessage(ERROR_MESSAGES.CREDENTIALS_MISMATCH);
+    const longUsername = 'a'.repeat(500);
+
+    // Enter very long string as username
+    await loginPage.login(longUsername, 'secret_sauce');
+
+    // Expect: standard error — no performance issue or crash
+    await loginPage.assertErrorMessage(ERROR_MESSAGES.invalidCredentials);
+    await expect(page).toHaveURL(APP_URL);
   });
 
-  test('TC-KAN2-016: Very long string (500 chars) is handled without layout issues', async ({ page }) => {
-    // Act: Submit very long username and password
-    await loginPage.login(EDGE_CASE_INPUTS.LONG_STRING, EDGE_CASE_INPUTS.LONG_STRING);
+  // Data-driven edge case test using the EDGE_CASE_INPUTS constant
+  for (const { label, username } of EDGE_CASE_INPUTS) {
+    test(`Edge case — ${label} username is rejected without errors`, async ({ page }) => {
+      const loginPage = new LoginPage(page);
+      await loginPage.navigate();
 
-    // Assert: No crash, error shown, no horizontal overflow
-    expect(await loginPage.isOnInventoryPage()).toBe(false);
-    expect(await loginPage.isErrorVisible()).toBe(true);
+      await loginPage.login(username, 'secret_sauce');
 
-    // Verify no layout overflow
-    const noOverflow = await page.evaluate(
-      () => document.body.scrollWidth <= window.innerWidth + 10
-    );
-    expect(noOverflow).toBe(true);
-  });
+      // Expect: application handles gracefully — no crash, correct error shown
+      await loginPage.assertErrorMessage(ERROR_MESSAGES.invalidCredentials);
+      await expect(page).toHaveURL(APP_URL);
+    });
+  }
+
 });

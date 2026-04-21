@@ -1,30 +1,69 @@
+// spec: specs/KAN-2/KAN-2_test_plan.md
+// seed: tests/seed.spec.ts
+
 import { test, expect } from '@playwright/test';
-import { LoginPage } from './page-objects/LoginPage';
-import { VALID_USERS, INVENTORY_PATH } from './fixtures/test-data';
 
-/**
- * KAN-2: Login Happy Path Tests
- * AC1: Valid user login scenarios
- * Tests: TC-KAN2-001, TC-KAN2-002, TC-KAN2-003
- */
+test.describe('Happy Path Login Tests', () => {
+  test('TC-KAN2-001: Successful login with standard_user', async ({ page }) => {
+    // Navigate to https://www.saucedemo.com/ - expect: Login page loads successfully
+    await page.goto('https://www.saucedemo.com/');
 
-test.describe('KAN-2: Login Happy Path - AC1 Valid Logins', () => {
-  let loginPage: LoginPage;
+    // expect: Username field is visible
+    await expect(page.locator('[data-test="username"]')).toBeVisible();
 
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    await loginPage.navigate();
+    // expect: Password field is visible  
+    await expect(page.locator('[data-test="password"]')).toBeVisible();
+
+    // expect: Login button is visible and enabled
+    await expect(page.locator('[data-test="login-button"]')).toBeVisible();
+
+    // Enter 'standard_user' in username field - expect: Username field accepts the input
+    await page.locator('[data-test="username"]').fill('standard_user');
+
+    // Enter 'secret_sauce' in password field - expect: Password field accepts the input (masked)
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+
+    // Click Login button - expect: User is redirected to inventory page and URL changes to '/inventory.html'
+    await page.locator('[data-test="login-button"]').click();
+
+    // expect: Products page displays correctly with Products heading
+    await expect(page.locator('[data-test="title"]')).toBeVisible();
+    await expect(page).toHaveURL(/.*inventory\.html/);
   });
 
-  for (const { username, password, testId } of VALID_USERS) {
-    test(`${testId}: Successful login with ${username}`, async ({ page }) => {
-      // Act: Login with valid credentials
-      await loginPage.login(username, password);
+  test('TC-KAN2-002: Successful login with problem_user', async ({ page }) => {
+    // Navigate to https://www.saucedemo.com/ for TC-KAN2-002: Login with problem_user
+    await page.goto('https://www.saucedemo.com/');
 
-      // Assert: Redirected to inventory page
-      await loginPage.assertOnInventoryPage();
-      expect(await loginPage.isOnInventoryPage()).toBe(true);
-      expect(await loginPage.isErrorVisible()).toBe(false);
-    });
-  }
+    // Enter 'problem_user' in username field - expect: Username field accepts the input
+    await page.locator('[data-test="username"]').fill('problem_user');
+
+    // Enter 'secret_sauce' in password field - expect: Password field accepts the input
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+
+    // Click Login button - expect: User is successfully logged in and redirected to inventory page
+    await page.locator('[data-test="login-button"]').click();
+
+    // expect: Redirected to inventory page for problem_user
+    await expect(page.locator('[data-test="title"]')).toBeVisible();
+    await expect(page).toHaveURL(/.*inventory\.html/);
+  });
+
+  test('TC-KAN2-003: Successful login with visual_user', async ({ page }) => {
+    // Navigate to https://www.saucedemo.com/ for TC-KAN2-003: Login with visual_user  
+    await page.goto('https://www.saucedemo.com/');
+
+    // Enter 'visual_user' in username field - expect: Username field accepts the input
+    await page.locator('[data-test="username"]').fill('visual_user');
+
+    // Enter 'secret_sauce' in password field - expect: Password field accepts the input
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+
+    // Click Login button - expect: User is successfully logged in and redirected to inventory page
+    await page.locator('[data-test="login-button"]').click();
+
+    // expect: Redirected to inventory page for visual_user
+    await expect(page.locator('[data-test="title"]')).toBeVisible();
+    await expect(page).toHaveURL(/.*inventory\.html/);
+  });
 });

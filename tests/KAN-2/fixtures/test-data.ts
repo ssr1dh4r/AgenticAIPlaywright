@@ -1,41 +1,60 @@
 /**
- * KAN-2: Test Data constants for SauceDemo Login Validation
- * Contains all users, credentials, error messages, and test inputs
+ * KAN-2 - SauceDemo Login Validation
+ * Test data constants used across all login test suites.
  */
 
-export const APP_URL = 'https://www.saucedemo.com';
-export const INVENTORY_URL = 'https://www.saucedemo.com/inventory.html';
-export const INVENTORY_PATH = '/inventory.html';
+export const APP_URL = 'https://www.saucedemo.com/';
 
+export const INVENTORY_URL_PATTERN = /.*inventory\.html/;
+
+// -------------------------------------------------------
+// Valid Users (AC1 - should login successfully)
+// -------------------------------------------------------
 export const VALID_USERS = [
-  { username: 'standard_user', password: 'secret_sauce', testId: 'TC-KAN2-001' },
-  { username: 'problem_user',  password: 'secret_sauce', testId: 'TC-KAN2-002' },
-  { username: 'visual_user',   password: 'secret_sauce', testId: 'TC-KAN2-003' },
-];
+  { username: 'standard_user', password: 'secret_sauce' },
+  { username: 'problem_user',  password: 'secret_sauce' },
+  { username: 'visual_user',   password: 'secret_sauce' },
+] as const;
 
+// -------------------------------------------------------
+// Invalid Users (AC2 - should NOT login)
+// -------------------------------------------------------
 export const INVALID_USERS = [
-  { username: 'invalid_user', password: 'secret_sauce', testId: 'TC-KAN2-004' },
-  { username: 'test',          password: 'secret_sauce', testId: 'TC-KAN2-005' },
-  { username: 'test_user',     password: 'secret_sauce', testId: 'TC-KAN2-006' },
-];
+  { username: 'test_user',    password: 'secret_sauce' },
+  { username: 'test',         password: 'secret_sauce' },
+  { username: 'invalid_user', password: 'secret_sauce' },
+] as const;
 
-export const LOCKED_USER = { username: 'locked_out_user', password: 'secret_sauce', testId: 'TC-KAN2-010' };
+// -------------------------------------------------------
+// Special Accounts
+// -------------------------------------------------------
+export const LOCKED_USER = { username: 'locked_out_user', password: 'secret_sauce' } as const;
 
+// -------------------------------------------------------
+// Error Messages (exact text as returned by the application)
+// -------------------------------------------------------
 export const ERROR_MESSAGES = {
-  USERNAME_REQUIRED: 'Epic sadface: Username is required',
-  PASSWORD_REQUIRED: 'Epic sadface: Password is required',
-  CREDENTIALS_MISMATCH: 'Epic sadface: Username and password do not match any user in this service',
-  LOCKED_OUT: 'Epic sadface: Sorry, this user has been locked out.',
-};
+  invalidCredentials: 'Epic sadface: Username and password do not match any user in this service',
+  usernameRequired:   'Epic sadface: Username is required',
+  passwordRequired:   'Epic sadface: Password is required',
+  lockedOut:          'Epic sadface: Sorry, this user has been locked out.',
+} as const;
 
+// -------------------------------------------------------
+// UI Text Constants
+// -------------------------------------------------------
 export const UI_TEXT = {
-  USERNAME_PLACEHOLDER: 'Username',
-  PASSWORD_PLACEHOLDER: 'Password',
-  PAGE_TITLE: 'Swag Labs',
-};
+  acceptedUsernamesHeading: 'Accepted usernames are:',
+  passwordHeading:          'Password for all users:',
+  usernamePlaceholder:      'Username',
+  passwordPlaceholder:      'Password',
+} as const;
 
-export const EDGE_CASE_INPUTS = {
-  SPECIAL_CHARS: 'user@#$%',
-  SQL_INJECTION: "admin' OR '1'='1' --",
-  LONG_STRING: 'a'.repeat(500),
-};
+// -------------------------------------------------------
+// Edge Case Inputs
+// -------------------------------------------------------
+export const EDGE_CASE_INPUTS = [
+  { label: 'special characters',  username: '!@#$%^&*()' },
+  { label: 'SQL injection',        username: "'; DROP TABLE users; --" },
+  { label: 'very long string',     username: 'a'.repeat(500) },
+] as const;

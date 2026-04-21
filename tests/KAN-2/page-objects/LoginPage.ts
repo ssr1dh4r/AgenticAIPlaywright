@@ -1,20 +1,27 @@
 import { Page, expect } from '@playwright/test';
-import { APP_URL, INVENTORY_PATH } from '../fixtures/test-data';
+import { APP_URL, INVENTORY_URL_PATTERN } from '../fixtures/test-data';
 
 /**
- * KAN-2: LoginPage Page Object
- * Follows SOLID/SRP principle — encapsulates all login page interactions
- * Locators use stable data-test attributes discovered during exploratory testing
+ * LoginPage — Single Responsibility: all interactions with the SauceDemo login page.
+ * Follows SOLID SRP principle — this class only handles login page concerns.
+ *
+ * Locators verified during exploratory testing (2026-04-17):
+ *   Username:       [data-test="username"]
+ *   Password:       [data-test="password"]
+ *   Login button:   [data-test="login-button"]
+ *   Error message:  [data-test="error"]
+ *   Error close:    [data-test="error-button"]
  */
 export class LoginPage {
   private readonly page: Page;
 
-  // Stable locators confirmed during exploratory testing
-  private readonly usernameInput = '[data-test="username"]';
-  private readonly passwordInput = '[data-test="password"]';
-  private readonly loginButton   = '[data-test="login-button"]';
-  private readonly errorMessage  = '[data-test="error"]';
-  private readonly errorDismiss  = '[data-test="error-button"]';
+  // Stable locators discovered during exploratory testing
+  private readonly usernameLocator  = '[data-test="username"]';
+  private readonly passwordLocator  = '[data-test="password"]';
+  private readonly loginBtnLocator  = '[data-test="login-button"]';
+  private readonly errorLocator     = '[data-test="error"]';
+  private readonly errorBtnLocator  = '[data-test="error-button"]';
+  private readonly titleLocator     = '[data-test="title"]';
 
   constructor(page: Page) {
     this.page = page;
@@ -23,84 +30,85 @@ export class LoginPage {
   /** Navigate to the SauceDemo login page */
   async navigate(): Promise<void> {
     await this.page.goto(APP_URL);
-    await this.page.waitForLoadState('networkidle');
   }
 
-  /** Fill username field */
+  /** Fill the username input field */
   async fillUsername(username: string): Promise<void> {
-    await this.page.locator(this.usernameInput).fill(username);
+    await this.page.locator(this.usernameLocator).fill(username);
   }
 
-  /** Fill password field */
+  /** Fill the password input field */
   async fillPassword(password: string): Promise<void> {
-    await this.page.locator(this.passwordInput).fill(password);
+    await this.page.locator(this.passwordLocator).fill(password);
   }
 
-  /** Click the login button */
+  /** Click the Login button */
   async clickLoginButton(): Promise<void> {
-    await this.page.locator(this.loginButton).click();
+    await this.page.locator(this.loginBtnLocator).click();
   }
 
-  /** Perform a full login with the given credentials */
+  /** Combined: fill credentials and click login */
   async login(username: string, password: string): Promise<void> {
     await this.fillUsername(username);
     await this.fillPassword(password);
     await this.clickLoginButton();
   }
 
-  /** Get the current error message text */
+  /** Returns the visible error message text */
   async getErrorMessage(): Promise<string> {
-    return (await this.page.locator(this.errorMessage).textContent() ?? '').trim();
+    return (await this.page.locator(this.errorLocator).textContent()) ?? '';
   }
 
-  /** Check if an error message is visible */
+  /** Returns true if the error banner is currently visible */
   async isErrorVisible(): Promise<boolean> {
-    return this.page.locator(this.errorMessage).isVisible();
+    return this.page.locator(this.errorLocator).isVisible();
   }
 
-  /** Click the X button to dismiss the error message */
+  /** Clicks the X button to dismiss the error banner */
   async dismissError(): Promise<void> {
-    await this.page.locator(this.errorDismiss).click();
+    await this.page.locator(this.errorBtnLocator).click();
   }
 
-  /** Check whether the current page is the login page */
+  /** Returns true if the current URL is the login page root */
   async isOnLoginPage(): Promise<boolean> {
-    return this.page.url() === `${APP_URL}/` || this.page.url() === APP_URL;
+    return this.page.url() === APP_URL;
   }
 
-  /** Check whether the current page is the inventory page */
+  /** Returns true if the current URL contains /inventory.html */
   async isOnInventoryPage(): Promise<boolean> {
-    return this.page.url().includes(INVENTORY_PATH);
+    return INVENTORY_URL_PATTERN.test(this.page.url());
   }
 
-  /** Assert that the user is on the inventory page */
-  async assertOnInventoryPage(): Promise<void> {
-    await expect(this.page).toHaveURL(new RegExp(INVENTORY_PATH));
-  }
-
-  /** Assert a specific error message is displayed */
-  async assertErrorMessage(expectedMessage: string): Promise<void> {
-    await expect(this.page.locator(this.errorMessage)).toBeVisible();
-    await expect(this.page.locator(this.errorMessage)).toContainText(expectedMessage);
-  }
-
-  /** Get the username field placeholder text */
+  /** Returns the placeholder attribute of the username field */
   async getUsernamePlaceholder(): Promise<string | null> {
-    return this.page.locator(this.usernameInput).getAttribute('placeholder');
+    return this.page.locator(this.usernameLocator).getAttribute('placeholder');
   }
 
-  /** Get the password field placeholder text */
+  /** Returns the placeholder attribute of the password field */
   async getPasswordPlaceholder(): Promise<string | null> {
-    return this.page.locator(this.passwordInput).getAttribute('placeholder');
+    return this.page.locator(this.passwordLocator).getAttribute('placeholder');
   }
 
-  /** Get the password input type attribute */
-  async getPasswordInputType(): Promise<string | null> {
-    return this.page.locator(this.passwordInput).getAttribute('type');
+  /** Returns true if the password field masks input (type="password") */
+  async isPasswordMasked(): Promise<boolean> {
+    const type = await this.page.locator(this.passwordLocator).getAttribute('type');
+    return type === 'password';
   }
 
-  /** Check if the login button is enabled */
+  /** Returns true if the login button is enabled */
   async isLoginButtonEnabled(): Promise<boolean> {
-    return this.page.locator(this.loginButton).isEnabled();
+    return this.page.locator(this.loginBtnLocator).isEnabled();
+  }
+
+  /** Asserts the page is on the inventory page */
+  async assertOnInventoryPage(): Promise<void> {
+    await expect(this.page).toHaveURL(INVENTORY_URL_PATTERN);
+    await expect(this.page.locator(this.titleLocator)).toBeVisible();
+  }
+
+  /** Asserts the error message contains the expected text */
+  async assertErrorMessage(expectedText: string): Promise<void> {
+    await expect(this.page.locator(this.errorLocator)).toBeVisible();
+    await expect(this.page.locator(this.errorLocator)).toContainText(expectedText);
   }
 }

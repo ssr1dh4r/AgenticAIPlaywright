@@ -1,38 +1,82 @@
+// spec: specs/KAN-2/KAN-2_test_plan.md
+// seed: tests/seed.spec.ts
+
 import { test, expect } from '@playwright/test';
-import { LoginPage } from './page-objects/LoginPage';
-import { INVALID_USERS, LOCKED_USER, ERROR_MESSAGES } from './fixtures/test-data';
 
-/**
- * KAN-2: Login Negative Tests
- * AC2: Invalid credentials, locked user
- * Tests: TC-KAN2-004, TC-KAN2-005, TC-KAN2-006, TC-KAN2-010
- */
+test.describe('Invalid Credentials Tests', () => {
+  test('TC-KAN2-004: Login failure with invalid username', async ({ page }) => {
+    // Navigate to https://www.saucedemo.com/ for TC-KAN2-004: Login failure with invalid username
+    await page.goto('https://www.saucedemo.com/');
 
-test.describe('KAN-2: Login Negative Tests - AC2 Invalid Logins', () => {
-  let loginPage: LoginPage;
+    // Enter 'invalid_user' in username field - expect: Username field accepts the input
+    await page.locator('[data-test="username"]').fill('invalid_user');
 
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    await loginPage.navigate();
+    // Enter 'secret_sauce' in password field - expect: Password field accepts the input
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+
+    // Click Login button - expect: Error message appears: 'Epic sadface: Username and password do not match any user in this service'
+    await page.locator('[data-test="login-button"]').click();
+
+    // expect: Error message appears: 'Epic sadface: Username and password do not match any user in this service'
+    await expect(page.locator('[data-test="error"]')).toBeVisible();
+    await expect(page.locator('[data-test="error"]')).toContainText('Epic sadface: Username and password do not match any user in this service');
+    await expect(page).toHaveURL('https://www.saucedemo.com/');
   });
 
-  for (const { username, password, testId } of INVALID_USERS) {
-    test(`${testId}: Invalid login with ${username} shows error`, async () => {
-      // Act: Attempt login with invalid credentials
-      await loginPage.login(username, password);
+  test('TC-KAN2-005: Login failure with test user', async ({ page }) => {
+    // Navigate to https://www.saucedemo.com/
+    await page.goto('https://www.saucedemo.com/');
 
-      // Assert: Still on login page with correct error
-      expect(await loginPage.isOnLoginPage()).toBe(true);
-      await loginPage.assertErrorMessage(ERROR_MESSAGES.CREDENTIALS_MISMATCH);
-    });
-  }
+    // Enter 'test' in username field
+    await page.locator('[data-test="username"]').fill('test');
 
-  test(`${LOCKED_USER.testId}: Locked user cannot login`, async () => {
-    // Act: Attempt login with locked user credentials
-    await loginPage.login(LOCKED_USER.username, LOCKED_USER.password);
+    // Enter 'secret_sauce' in password field
+    await page.locator('[data-test="password"]').fill('secret_sauce');
 
-    // Assert: Still on login page with locked out error
-    expect(await loginPage.isOnLoginPage()).toBe(true);
-    await loginPage.assertErrorMessage(ERROR_MESSAGES.LOCKED_OUT);
+    // Click Login button
+    await page.locator('[data-test="login-button"]').click();
+
+    // expect: Error message appears
+    await expect(page.locator('[data-test="error"]')).toBeVisible();
+    await expect(page.locator('[data-test="error"]')).toContainText('Epic sadface: Username and password do not match any user in this service');
+    await expect(page).toHaveURL('https://www.saucedemo.com/');
+  });
+
+  test('TC-KAN2-006: Login failure with both invalid credentials', async ({ page }) => {
+    // Navigate to https://www.saucedemo.com/ for TC-KAN2-006: Login failure with both invalid credentials
+    await page.goto('https://www.saucedemo.com/');
+
+    // Enter 'test_user' in username field - expect: Username field accepts the input
+    await page.locator('[data-test="username"]').fill('test_user');
+
+    // Enter 'wrong_password' in password field - expect: Password field accepts the input
+    await page.locator('[data-test="password"]').fill('wrong_password');
+
+    // Click Login button - expect: Error message appears: 'Epic sadface: Username and password do not match any user in this service'
+    await page.locator('[data-test="login-button"]').click();
+
+    // expect: Same error message appears for both invalid credentials
+    await expect(page.locator('[data-test="error"]')).toBeVisible();
+    await expect(page.locator('[data-test="error"]')).toContainText('Epic sadface: Username and password do not match any user in this service');
+    await expect(page).toHaveURL('https://www.saucedemo.com/');
+  });
+
+  test('TC-KAN2-010: Locked out user login attempt', async ({ page }) => {
+    // Navigate to https://www.saucedemo.com/ for TC-KAN2-010: Locked out user login attempt
+    await page.goto('https://www.saucedemo.com/');
+
+    // Enter 'locked_out_user' in username field - expect: Username field accepts the input
+    await page.locator('[data-test="username"]').fill('locked_out_user');
+
+    // Enter 'secret_sauce' in password field - expect: Password field accepts the input
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+
+    // Click Login button - expect: Specific error message appears: 'Epic sadface: Sorry, this user has been locked out.'
+    await page.locator('[data-test="login-button"]').click();
+
+    // expect: Specific error message appears: 'Epic sadface: Sorry, this user has been locked out.'
+    await expect(page.locator('[data-test="error"]')).toBeVisible();
+    await expect(page.locator('[data-test="error"]')).toContainText('Epic sadface: Sorry, this user has been locked out.');
+    await expect(page).toHaveURL('https://www.saucedemo.com/');
   });
 });
