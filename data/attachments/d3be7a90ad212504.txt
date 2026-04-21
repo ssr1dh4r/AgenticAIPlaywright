@@ -1,0 +1,1 @@
+[BUG-KAN3-003] CreateComponent without token returned: 200 — expected 401
