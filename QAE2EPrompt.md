@@ -3,7 +3,7 @@
 Set your reasoning mode to 'Strict Procedural'. I need to execute a bulk QA loop.
 STEP 1 [Discovery]: Search the atlassian-rovo server for all tickets in project 'QE AI Kanban' with status 'To Do'. Store the list of all Ticket IDs in your memory. 
 STEP 2 [Logging]: Output the list of IDs you found so I can see the scope. 
-STEP 3 [Execution Loop]: For EVERY ID in that list, perform the following steps Step A to Step G before moving to the next ID:
+STEP 3 [Execution Loop]: For EVERY ID in that list, perform the following steps Step A to Step L before moving to the next ID:
 ## ✅ Step A: Read Jira ticket
 
 Prompt:
@@ -37,6 +37,9 @@ Check out the branch before moving to the next step
 ## ✅ Step C: Create Test Plan
 
 Prompt:
+
+Analyse the risk for the ticket by running the following prompt -
+@jira-risk-analyzer Analyse the risk for <Jira ref> and confirm the list of regression tests to be included in the regression suite.
 
 Use **Playwright Test Planner Agent**
 
@@ -177,15 +180,19 @@ Re-run tests after healing
 
 * Final execution status
 * List of fixed issues
+ 
 
+## ✅ Step H: Consolidate and create the failed test report
+Run the following prompt -
+@test-failure-reporter Run against <Jira ref> and give me a full failure report
 
 ---
-## ✅ Step H: Consolidate files and folders
+## ✅ Step I: Consolidate files and folders
 
 Prompt:
 Put all the files created in specs/ in newly created folder using the Jira ticket ref. 
 
-## ✅ Step I: Generate Test Report
+## ✅ Step J: Generate Test Report
 
 Prompt:
 
@@ -206,7 +213,7 @@ Include:
 * Recommendations
 ---
 
-## ✅ Step J: Commit to GitHub
+## ✅ Step K: Commit to GitHub
 Prompt:
 Use **GitHub MCP Server**
 Repository URL:
@@ -226,7 +233,7 @@ Perform:
 Files to commit:
 Everything except reports folder
 
-## ✅ Step K: Update Jira ticket status
+## ✅ Step L: Update Jira ticket status
 
 Prompt:
 If there are no open defects or if all tests have passed then move the Jira ticket to "Done" else leave the ticket "in Progress" and details regarding the failure in the comments section.
