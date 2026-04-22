@@ -34,7 +34,9 @@ export default defineConfig({
   // },
 
   reporter: [
-    ['line'], // Clean console output
+    ['line'],
+    ['html'], 
+    ['json', { outputFile: 'results.json' }], // Clean console output
     ['allure-playwright', { outputFolder: 'allure-results' }]
   ],
   use: {

@@ -36,6 +36,18 @@ jobs:
       run: npx playwright test
       continue-on-error: true # Allows report generation even if tests fail
 
+    - name: 🤖 AI Root Cause Analysis
+      if: steps.playwright.outcome == 'failure'
+      uses: daun/playwright-report-summary@v3
+      with:
+        report-file: results.json
+        comment-title: "🚨 Automated Failure Analysis"
+        # Custom info tells the agent how to interpret the data
+        custom-info: |
+          ### 🕵️ Diagnostic Insights
+          The agent detected that this failure might be environment-specific. 
+          Check the [Trace Viewer](https://trace.playwright.dev) for network latencies.
+
     - name: Generate Detailed Summary
       if: always()
       run: |
