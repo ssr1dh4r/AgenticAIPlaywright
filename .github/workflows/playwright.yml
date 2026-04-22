@@ -37,7 +37,7 @@ jobs:
       continue-on-error: true # Allows report generation even if tests fail
 
     - name: 🤖 AI Root Cause Analysis
-      if: steps.playwright.outcome == 'failure'
+      if: always()
       uses: daun/playwright-report-summary@v3
       with:
         report-file: results.json
