@@ -1,1 +1,0 @@
-[BUG-KAN3-001] Login with wrong password returned status: 200 — security issue
