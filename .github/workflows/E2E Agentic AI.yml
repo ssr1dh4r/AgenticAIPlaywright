@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: write
       pages: write
+      pull-requests: write
     steps:
     - uses: actions/checkout@v4
 
@@ -33,6 +34,7 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Run Playwright tests
+      id: playwright-step
       run: npx playwright test
       continue-on-error: true # Allows report generation even if tests fail
 
@@ -66,3 +68,23 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./allure-report
+
+    - name: 🤖 AI Root Cause Analysis (Plain English)
+      if: steps.playwright-step.outcome == 'failure'
+      uses: daun/playwright-report-summary@v3
+      with:
+        report-file: results.json
+        comment-title: "🕵️ RCA: Why did it fail?"
+          # This custom logic produces the plain-English failure summary
+        custom-info: |
+            ### 🔍 Semantic Failure Reason
+            The agent detected that a test failed during execution. 
+            **Primary Reason:** $(jq -r '.suites[0].specs[0].tests[0].results[0].error.message' results.json | head -n 1)
+            
+            **Actionable Insight:** If this passed locally, check the Allure report below for 'Headless' rendering differences or Network Latency.
+
+    - name: 🛑 Enforce Pipeline Failure
+      if: steps.playwright-step.outcome == 'failure'
+      run: |
+        echo "Test failures detected. Failing the build after reporting."
+        exit 1
