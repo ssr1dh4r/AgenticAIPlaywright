@@ -34,6 +34,7 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Run Playwright tests
+      id: playwright-step
       run: npx playwright test
       continue-on-error: true # Allows report generation even if tests fail
 
@@ -69,7 +70,7 @@ jobs:
         publish_dir: ./allure-report
 
     - name: 🤖 AI Root Cause Analysis (Plain English)
-      if: always() && steps.playwright-step.outcome == 'failure'
+      if: steps.playwright-step.outcome == 'failure'
       uses: daun/playwright-report-summary@v3
       with:
         report-file: results.json
@@ -83,7 +84,7 @@ jobs:
             **Actionable Insight:** If this passed locally, check the Allure report below for 'Headless' rendering differences or Network Latency.
 
     - name: 🛑 Enforce Pipeline Failure
-      if: always() && steps.playwright-step.outcome == 'failure'
+      if: steps.playwright-step.outcome == 'failure'
       run: |
         echo "Test failures detected. Failing the build after reporting."
         exit 1
