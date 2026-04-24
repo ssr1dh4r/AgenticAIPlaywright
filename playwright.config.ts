@@ -51,15 +51,16 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      testIgnore: /.*api\.spec\.ts/, 
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      testIgnore: /.*api\.spec\.ts/, 
       // Exclude API tests — they run under the dedicated 'api' project
     },
 
@@ -67,6 +68,7 @@ export default defineConfig({
     {
       name: 'api',
       use: { ...devices['Desktop Chrome'] },
+      testMatch: /.*api\.spec\.ts/,
       retries: 2,
     },
 
