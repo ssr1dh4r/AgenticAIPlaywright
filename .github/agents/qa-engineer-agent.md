@@ -28,7 +28,7 @@ For each Jira ID, you MUST complete these steps in order:
 
 
 ### [C-D] Planning & Exploration
-- **Step C**: Call `@jira-risk-analyzer`. Use `playwright-mcp` to explore the site. **Save** `.md` test plan and `.feature` files in `specs/<Jira_ref>/`.
+- **Step C**: Call `@jira-risk-analyzer`. Use `playwright-mcp` to explore the site. Create and add the test plan to the Jira ticket comments and create a `.feature` files in `specs/<Jira_ref>/`.
 - **Step D**: Execute exploratory testing via `playwright-mcp`. Capture logs and screenshots.
 
 ### [F-G] Automation & Healing
