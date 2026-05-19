@@ -1,0 +1,102 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: KAN-8/get-endpoints.api.spec.ts >> KAN-8: DummyJSON GET Endpoints >> TC-KAN8-GET-006: Retrieve all users
+- Location: tests/KAN-8/get-endpoints.api.spec.ts:48:7
+
+# Error details
+
+```
+Error: apiRequestContext.get: getaddrinfo ENOTFOUND api.dummyjson.com
+Call log:
+  - → GET https://api.dummyjson.com/users
+    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.15 Safari/537.36
+    - accept: */*
+    - accept-encoding: gzip,deflate,br
+
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from '@playwright/test';
+  2  | import * as fs from 'fs';
+  3  | 
+  4  | const BASE_URL = 'https://api.dummyjson.com';
+  5  | 
+  6  | test.describe('KAN-8: DummyJSON GET Endpoints', () => {
+  7  |   test('TC-KAN8-GET-001: Retrieve all products', async ({ request }) => {
+  8  |     const response = await request.get(`${BASE_URL}/products`);
+  9  |     expect(response.status()).toBe(200);
+  10 |     const data = await response.json();
+  11 |     expect(Array.isArray(data.products)).toBeTruthy();
+  12 |     expect(data.products.length).toBeGreaterThan(0);
+  13 |     expect(data.products[0]).toHaveProperty('id');
+  14 |     expect(data.products[0]).toHaveProperty('title');
+  15 |     expect(data.products[0]).toHaveProperty('price');
+  16 |   });
+  17 | 
+  18 |   test('TC-KAN8-GET-002: Retrieve single product by valid ID', async ({ request }) => {
+  19 |     const response = await request.get(`${BASE_URL}/products/1`);
+  20 |     expect(response.status()).toBe(200);
+  21 |     const data = await response.json();
+  22 |     expect(data.id).toBe(1);
+  23 |     expect(data).toHaveProperty('title');
+  24 |     expect(data).toHaveProperty('description');
+  25 |     expect(data).toHaveProperty('price');
+  26 |     expect(typeof data.price).toBe('number');
+  27 |   });
+  28 | 
+  29 |   test('TC-KAN8-GET-003: Retrieve product by invalid ID returns 404', async ({ request }) => {
+  30 |     const response = await request.get(`${BASE_URL}/products/99999`);
+  31 |     expect(response.status()).toBe(404);
+  32 |   });
+  33 | 
+  34 |   test('TC-KAN8-GET-004: Get products with skip parameter', async ({ request }) => {
+  35 |     const response = await request.get(`${BASE_URL}/products?skip=5&limit=5`);
+  36 |     expect(response.status()).toBe(200);
+  37 |     const data = await response.json();
+  38 |     expect(data.products.length).toBeLessThanOrEqual(5);
+  39 |   });
+  40 | 
+  41 |   test('TC-KAN8-GET-005: Get products with limit parameter', async ({ request }) => {
+  42 |     const response = await request.get(`${BASE_URL}/products?limit=10`);
+  43 |     expect(response.status()).toBe(200);
+  44 |     const data = await response.json();
+  45 |     expect(data.products.length).toBeLessThanOrEqual(10);
+  46 |   });
+  47 | 
+  48 |   test('TC-KAN8-GET-006: Retrieve all users', async ({ request }) => {
+> 49 |     const response = await request.get(`${BASE_URL}/users`);
+     |                                    ^ Error: apiRequestContext.get: getaddrinfo ENOTFOUND api.dummyjson.com
+  50 |     expect(response.status()).toBe(200);
+  51 |     const data = await response.json();
+  52 |     expect(Array.isArray(data.users)).toBeTruthy();
+  53 |     expect(data.users.length).toBeGreaterThan(0);
+  54 |     expect(data.users[0]).toHaveProperty('id');
+  55 |     expect(data.users[0]).toHaveProperty('username');
+  56 |   });
+  57 | 
+  58 |   test('TC-KAN8-GET-007: Retrieve single user by ID', async ({ request }) => {
+  59 |     const response = await request.get(`${BASE_URL}/users/1`);
+  60 |     expect(response.status()).toBe(200);
+  61 |     const data = await response.json();
+  62 |     expect(data.id).toBe(1);
+  63 |     expect(data).toHaveProperty('username');
+  64 |     expect(data).toHaveProperty('email');
+  65 |   });
+  66 | 
+  67 |   test('TC-KAN8-GET-008: Retrieve all carts', async ({ request }) => {
+  68 |     const response = await request.get(`${BASE_URL}/carts`);
+  69 |     expect(response.status()).toBe(200);
+  70 |     const data = await response.json();
+  71 |     expect(Array.isArray(data.carts)).toBeTruthy();
+  72 |   });
+  73 | });
+  74 | 
+```
